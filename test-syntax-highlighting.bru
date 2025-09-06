@@ -1,0 +1,155 @@
+meta {
+  name: Bruno Syntax Test
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{server-url}}:{{port}}/api/endpoint
+  body: multipartForm
+  auth: inherit
+}
+
+multipart-form {
+  reqxml: '''
+    <Request>
+      <Login>
+        <Username>{{username}}</Username>
+        <Password>{{password}}</Password>
+      </Login>
+      <Get>
+        <TestData>
+          <Parameter>{{test-parameter}}</Parameter>
+        </TestData>
+      </Get>
+    </Request>
+  '''
+}
+
+script:pre-request {
+  // JavaScript syntax highlighting demonstration
+  const timestamp = new Date().toISOString();
+  const randomId = Math.random().toString(36).substring(7);
+  
+  // Bruno-specific functions
+  bru.setVar("request-id", randomId);
+  bru.setVar("timestamp", timestamp);
+  
+  // Environment variables
+  const baseUrl = bru.getEnvVar("API_BASE_URL") || "localhost";
+  
+  // Array and object manipulation
+  const headers = ["Content-Type", "Authorization", "X-Request-ID"];
+  const config = {
+    timeout: 30000,
+    retries: 3,
+    validateStatus: (status) => status < 400
+  };
+  
+  // Conditional logic
+  if (baseUrl.includes("prod")) {
+    console.log("🔴 Production environment detected");
+    bru.setVar("log-level", "error");
+  } else {
+    console.log("🟡 Development environment");
+    bru.setVar("log-level", "debug");
+  }
+  
+  // Regular expressions
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isValidEmail = emailPattern.test("{{username}}");
+  
+  // Template literals with variables
+  const apiEndpoint = `${baseUrl}/api/v1/{{resource}}`;
+  bru.setVar("full-endpoint", apiEndpoint);
+}
+
+vars:pre-request {
+  server-url: localhost
+  port: 8080
+  username: admin
+  password: secret
+  test-parameter: value123
+}
+
+script:post-response {
+  // Response processing with syntax highlighting
+  const response = res.getBody();
+  const status = res.getStatus();
+  
+  try {
+    // XML parsing demonstration
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(response, "text/xml");
+    
+    // Extract values from XML
+    const statusElement = xmlDoc.querySelector("Status");
+    if (statusElement) {
+      const responseStatus = statusElement.textContent;
+      bru.setVar("api-response-status", responseStatus);
+    }
+    
+    // Error handling
+    const errorElement = xmlDoc.querySelector("Error");
+    if (errorElement) {
+      throw new Error(`API Error: ${errorElement.textContent}`);
+    }
+    
+  } catch (error) {
+    console.error("❌ Response parsing failed:", error.message);
+    bru.setVar("parse-error", error.message);
+  }
+}
+
+tests {
+  // Test framework syntax highlighting
+  test("Response status should be 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response should contain valid XML", function() {
+    const body = res.getBody();
+    expect(body).to.include("<Response>");
+    expect(body).to.not.include("<Error>");
+  });
+  
+  test("Variables should be set correctly", function() {
+    const requestId = bru.getVar("request-id");
+    expect(requestId).to.be.a("string");
+    expect(requestId).to.have.lengthOf(7);
+  });
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  
+  # Bruno Syntax Highlighting Test
+  
+  This file demonstrates the **custom syntax highlighting** for Bruno API files:
+  
+  ## Features
+  - JSON-like base syntax
+  - **XML highlighting** in triple-quoted strings
+  - **JavaScript highlighting** in script blocks
+  - **Variable highlighting** with `{{variable}}` syntax
+  - **Markdown highlighting** in docs blocks
+  
+  ### JavaScript Blocks
+  - `script:pre-request {}` - Pre-request JavaScript execution
+  - `script:post-response {}` - Response processing
+  - `tests {}` - Test assertions
+  
+  ### HTTP Methods
+  - `get`, `post`, `put`, `delete`, etc.
+  
+  ### Special Blocks
+  - `meta {}` - File metadata
+  - `multipart-form {}` - Form data with embedded XML
+  - `vars:pre-request {}` - Variable definitions
+  - `settings {}` - Request settings
+  - `docs {}` - Documentation (this block!)
+  
+}

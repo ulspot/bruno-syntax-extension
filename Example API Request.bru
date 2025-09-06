@@ -1,0 +1,119 @@
+meta {
+  name: Example API Request
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{firewall-ip}}:{{firewall-port}}/webconsole/APIController
+  body: multipartForm
+  auth: inherit
+}
+
+multipart-form {
+  reqxml: '''
+    <Request>
+      <Login>
+        <Username>{{username}}</Username>
+        <Password>{{password}}</Password>
+      </Login>
+      <Set>
+        <NetworkConfiguration>
+          <Interface name="example-interface">
+            <IPAddress>{{interface-ip}}</IPAddress>
+            <Netmask>{{interface-netmask}}</Netmask>
+          </Interface>
+        </NetworkConfiguration>
+      </Set>
+    </Request>
+  '''
+}
+
+script:post-response {
+  // Parse XML response
+  const xml = res.getBody();
+  
+  // Extract status information
+  const statusMatch = xml.match(/<Status>(.*?)<\/Status>/);
+  if (statusMatch) {
+    const status = statusMatch[1];
+    bru.setVar("api-status", status);
+    console.log("✅ API Status:", status);
+  }
+  
+  // Extract configuration data
+  const configMatch = xml.match(/<Configuration>(.*?)<\/Configuration>/s);
+  if (configMatch) {
+    console.log("📋 Configuration retrieved");
+    bru.setVar("config-data", configMatch[1]);
+  }
+  
+  // Handle errors
+  const errorMatch = xml.match(/<Error>(.*?)<\/Error>/);
+  if (errorMatch) {
+    console.log("❌ Error:", errorMatch[1]);
+  }
+}
+
+tests {
+  test("Response should be successful", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Should contain valid XML", function() {
+    const body = res.getBody();
+    expect(body).to.include("<Response>");
+    expect(body).to.include("</Response>");
+  });
+  
+  test("Should not contain errors", function() {
+    const body = res.getBody();
+    expect(body).to.not.include("<Error>");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 30000
+}
+
+vars:pre-request {
+  api-endpoint: /webconsole/APIController
+  request-id: {{$randomUUID}}
+}
+
+vars:post-response {
+  response-time: {{response-time}}
+  last-request: {{$isoTimestamp}}
+}
+
+docs {
+  
+  ##### API Configuration Request
+  
+  This request demonstrates firewall configuration management via XML API.
+  
+  **Purpose:**
+  Configure network interfaces and system settings on the firewall appliance.
+  
+  **Variables:**
+  - `{{firewall-ip}}` - Target firewall IP (e.g., 192.168.1.1)
+  - `{{firewall-port}}` - API port (typically 4444)
+  - `{{username}}` - Administrator username
+  - `{{password}}` - Administrator password
+  - `{{interface-ip}}` - Interface IP address
+  - `{{interface-netmask}}` - Interface subnet mask
+  
+  **Response Structure:**
+  ```xml
+  <Response>
+    <Status>Success</Status>
+    <Configuration>
+      <!-- Configuration data -->
+    </Configuration>
+  </Response>
+  ```
+  
+  **Error Handling:**
+  The script automatically parses errors and sets appropriate variables for further processing.
+}
