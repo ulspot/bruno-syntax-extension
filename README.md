@@ -51,5 +51,3 @@ Benefits: 60% less code, better performance, automatic updates.
 MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
-
-**Made with ❤️ for the Bruno API community**
