@@ -1,0 +1,57 @@
+{
+  "name": "bruno-custom-syntax-highlighter",
+  "displayName": "Bruno Custom Syntax Highlighter",
+  "description": "Customized enhanced syntax highlighting for Bruno API (.bru) files with JavaScript and XML support",
+  "version": "2.0.0",
+  "publisher": "your-name",
+  "author": {
+    "name": "Your Name",
+    "email": "your.email@example.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/bruno-custom-syntax-highlighter"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "bruno",
+    "api",
+    "rest",
+    "syntax",
+    "highlighting",
+    "javascript",
+    "xml",
+    "custom",
+    "enhanced"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "bruno-custom",
+        "aliases": ["Bruno Custom", "bruno-custom"],
+        "extensions": [".bru"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "bruno-custom",
+        "scopeName": "source.bruno.custom",
+        "path": "./syntaxes/bruno.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^2.15.0"
+  }
+}

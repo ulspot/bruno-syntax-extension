@@ -1,0 +1,183 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Bruno Custom",
+  "scopeName": "source.bruno.custom",
+  "patterns": [
+    {
+      "include": "#script-block"
+    },
+    {
+      "include": "#tests-block"
+    },
+    {
+      "include": "#multipart-form-block"
+    },
+    {
+      "include": "#json-blocks"
+    },
+    {
+      "include": "#docs-block"
+    },
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#variables"
+    }
+  ],
+  "repository": {
+    "script-block": {
+      "begin": "\\b(script:(post-response|pre-request))\\s*\\{",
+      "end": "^\\}",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.bruno"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.js"
+        },
+        {
+          "include": "#bruno-functions"
+        },
+        {
+          "include": "#variables"
+        }
+      ]
+    },
+    "tests-block": {
+      "begin": "\\b(tests)\\s*\\{",
+      "end": "^\\}",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.bruno"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.js"
+        },
+        {
+          "include": "#test-functions"
+        },
+        {
+          "include": "#bruno-functions"
+        },
+        {
+          "include": "#variables"
+        }
+      ]
+    },
+    "multipart-form-block": {
+      "begin": "\\b(multipart-form)\\s*\\{",
+      "end": "^\\}",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.tag.bruno"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "'''",
+          "end": "'''",
+          "contentName": "text.xml.embedded.bruno",
+          "patterns": [
+            {
+              "include": "text.xml"
+            },
+            {
+              "include": "#variables"
+            }
+          ]
+        },
+        {
+          "include": "#json-content"
+        },
+        {
+          "include": "#variables"
+        }
+      ]
+    },
+    "json-blocks": {
+      "begin": "\\b(meta|post|get|put|patch|delete|head|options|settings|vars:(pre-request|post-response)|assert)\\s*\\{",
+      "end": "^\\}",
+      "beginCaptures": {
+        "1": {
+          "name": "storage.type.bruno"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#json-content"
+        },
+        {
+          "include": "#variables"
+        }
+      ]
+    },
+    "docs-block": {
+      "begin": "\\b(docs)\\s*\\{",
+      "end": "^\\}",
+      "beginCaptures": {
+        "1": {
+          "name": "storage.type.bruno"
+        }
+      },
+      "patterns": [
+        {
+          "include": "text.html.markdown"
+        },
+        {
+          "include": "#variables"
+        }
+      ]
+    },
+    "json-content": {
+      "patterns": [
+        {
+          "include": "source.json"
+        },
+        {
+          "include": "#variables"
+        }
+      ]
+    },
+    "bruno-functions": {
+      "patterns": [
+        {
+          "name": "support.function.builtin.bruno",
+          "match": "\\b(bru)\\.(setVar|getVar|getEnvVar|setEnvVar)\\b"
+        },
+        {
+          "name": "support.function.response.bruno",
+          "match": "\\b(res)\\.(getBody|getStatus|getHeader|getHeaders)\\b"
+        },
+        {
+          "name": "support.function.request.bruno",
+          "match": "\\b(req)\\.(getBody|getHeader|getHeaders|getUrl)\\b"
+        }
+      ]
+    },
+    "test-functions": {
+      "patterns": [
+        {
+          "name": "support.function.test.bruno",
+          "match": "\\b(test|expect|describe|it|beforeEach|afterEach)\\b"
+        },
+        {
+          "name": "support.function.assertion.bruno",
+          "match": "\\b(to)\\.(equal|be|have|include|match|not|greaterThan|lessThan|contain)\\b"
+        }
+      ]
+    },
+    "variables": {
+      "name": "string.quoted.other.bruno.variable",
+      "match": "\\{\\{[^}]+\\}\\}"
+    },
+    "comments": {
+      "name": "comment.line.double-slash.bruno",
+      "match": "//.*$"
+    }
+  }
+}
